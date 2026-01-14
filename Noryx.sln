@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36705.20
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noryx.API", "Noryx.API\Noryx.API.csproj", "{F73D723F-6E6E-4BF8-84F1-64D0E8999CDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerIntegracao", "WorkerIntegracao\WorkerIntegracao.csproj", "{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F73D723F-6E6E-4BF8-84F1-64D0E8999CDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F73D723F-6E6E-4BF8-84F1-64D0E8999CDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F73D723F-6E6E-4BF8-84F1-64D0E8999CDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F73D723F-6E6E-4BF8-84F1-64D0E8999CDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5B4F68F-D054-4120-AE1C-08E31FB62F7F}
+	EndGlobalSection
+EndGlobal
