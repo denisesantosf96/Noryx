@@ -7,12 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\CategoriasController.cs" />
-    <Compile Remove="Controllers\CotacoesController.cs" />
-    <Compile Remove="Controllers\ReferenciasController.cs" />
+    <Compile Remove="Application\Services\MoedaService.cs\**" />
+    <Content Remove="Application\Services\MoedaService.cs\**" />
+    <EmbeddedResource Remove="Application\Services\MoedaService.cs\**" />
+    <None Remove="Application\Services\MoedaService.cs\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\CategoriasController.cs" />
+    <Compile Remove="Controllers\CotacoesController.cs" />
+    <Compile Remove="Controllers\ReferenciasController.cs" />
+    <Compile Remove="WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">

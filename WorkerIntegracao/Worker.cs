@@ -32,39 +32,66 @@ namespace WorkerIntegracao
                     var noryxApi = scope.ServiceProvider
                         .GetRequiredService<IApiNoryx>();
 
-                    var moedaOrigem = "USD";
-                    var moedaDestino = "BRL";
+                    var moedasExternas = await awesomeApi.BuscarMoedasAsync();
 
-                    var cotacaoApi = await awesomeApi
-                        .BuscarCotacaoAsync(moedaOrigem, moedaDestino);
-
-                    if (cotacaoApi == null)
+                    var moedasDto = moedasExternas.Select(m => new MoedaExternaDto
                     {
-                        _logger.LogWarning("Cotação não retornada.");
-                        continue;
-                    }
+                        Codigo = m.Key,
+                        Nome = m.Value
+                    });
 
-                    var dto = new CotacaoDto
-                    {
-                        MoedaOrigem = moedaOrigem,
-                        MoedaDestino = moedaDestino,
-                        Valor = decimal.Parse(
-                            cotacaoApi.bid,
-                            CultureInfo.InvariantCulture)
-                    };
-
-                    await noryxApi.InserirCotacaoAsync(dto);
+                    await noryxApi.ImportarMoedasAsync(moedasDto);
 
                     _logger.LogInformation(
-                        "Cotação enviada para API {origem}/{destino} → {valor}",
-                        moedaOrigem, moedaDestino, dto.Valor);
+                        "Sincronização de moedas concluída. Total recebido: {total}",
+                        moedasExternas.Count);
+
+                    var moedas = await noryxApi.BuscarMoedasAsync();  //busca moedas já cadastradas no banco via api noryx
+
+                    const string moedaDestino = "BRL";
+
+                    foreach (var moeda in moedas)
+                    {
+                        if (moeda.Codigo == moedaDestino)
+                            continue;
+
+                        var cotacaoApi = await awesomeApi
+                            .BuscarCotacaoAsync(moeda.Codigo, moedaDestino);
+
+                        if (cotacaoApi == null)
+                        {
+                            _logger.LogWarning(
+                                "Cotação não encontrada para {origem}/{destino}",
+                                moeda.Codigo, moedaDestino);
+                            continue;
+                        }
+
+                        var dto = new CotacaoDto
+                        {
+                            MoedaOrigem = moeda.Codigo,
+                            MoedaDestino = moedaDestino,
+                            Valor = decimal.Parse(
+                                cotacaoApi.bid,
+                                CultureInfo.InvariantCulture)
+                        };
+
+                        await noryxApi.InserirCotacaoAsync(dto);
+
+                        _logger.LogInformation(
+                            "Cotação enviada: {origem}/{destino} → {valor}",
+                            dto.MoedaOrigem,
+                            dto.MoedaDestino,
+                            dto.Valor);
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Erro no Worker Noryx.");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                await Task.Delay(
+                    TimeSpan.FromMinutes(5),
+                    stoppingToken);
             }
         }
     }

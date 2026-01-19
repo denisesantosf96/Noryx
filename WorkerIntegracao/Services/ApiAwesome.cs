@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
@@ -27,5 +28,20 @@ namespace WorkerIntegracao.Services
             var chave = $"{moedaOrigem}{moedaDestino}";
             return response.Data[chave];
         }
+
+        public async Task<Dictionary<string, string>> BuscarMoedasAsync()
+        {
+            var client = new RestClient($"{baseUrl}available");
+            var request = new RestRequest("", Method.Get);
+
+            var response = await client
+                .ExecuteAsync<Dictionary<string, string>>(request);
+
+            if (!response.IsSuccessful || response.Data == null)
+                return new Dictionary<string, string>();
+
+            return response.Data;
+        }
+
     }
 }

@@ -10,5 +10,7 @@ namespace WorkerIntegracao.Services
     public interface IApiAwesome
     {
         Task<CotacaoAwesome> BuscarCotacaoAsync(string moedaOrigem, string moedaDestino);
+
+        Task<Dictionary<string, string>> BuscarMoedasAsync();
     }
 }

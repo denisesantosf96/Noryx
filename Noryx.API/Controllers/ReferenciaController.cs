@@ -6,7 +6,7 @@ using Noryx.API.Data;
 namespace Noryx.API.Controllers
 {
     [ApiController]
-    [Route("api/referencias")]
+    [Route("api/referencia")]
     public class ReferenciaController : ControllerBase
     {
         private readonly AppDbContext _context;

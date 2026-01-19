@@ -5,7 +5,7 @@ using Noryx.API.Application.Services;
 namespace Noryx.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cotacao")]
     public class CotacaoController : ControllerBase
     {
         private readonly ICotacaoService _cotacaoService;
