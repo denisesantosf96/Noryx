@@ -1,4 +1,4 @@
-﻿namespace Noryx.API.Models
+﻿namespace Noryx.API.Domain.Entities
 {
     public abstract class BaseEntity
     {

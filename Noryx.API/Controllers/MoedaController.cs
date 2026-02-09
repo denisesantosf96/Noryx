@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Noryx.API.Application.Dtos;
 using Noryx.API.Application.Services;
 using Noryx.API.Data;
-using Noryx.API.Models;
 
 namespace Noryx.API.Controllers
 {

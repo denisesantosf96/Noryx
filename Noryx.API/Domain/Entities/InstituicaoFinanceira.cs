@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace Noryx.API.Models
+namespace Noryx.API.Domain.Entities
 {
     public class InstituicaoFinanceira : BaseEntity
     {

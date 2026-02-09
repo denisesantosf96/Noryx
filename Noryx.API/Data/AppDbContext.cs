@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Noryx.API.Models;
+using Noryx.API.Domain.Entities;
 
 namespace Noryx.API.Data
 {
@@ -20,6 +20,10 @@ namespace Noryx.API.Data
         public DbSet<Moeda> Moedas { get; set; } = null!;
         public DbSet<Cotacao> Cotacoes { get; set; } = null!;
         public DbSet<HistoricoCotacao> HistoricosCotacoes { get; set; } = null!;
+
+        public DbSet<UsuarioRole> UsuarioRoles { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +49,14 @@ namespace Noryx.API.Data
 
                 entity.Property(u => u.SenhaHash)
                     .IsRequired();
+
+                entity.Property(u => u.Ativo)
+                    .IsRequired();
+
+                entity.Property(u => u.DataCriacao)
+                    .IsRequired();
+
+                entity.Property(u => u.DataAtualizacao);
             });
 
 
@@ -194,6 +206,37 @@ namespace Noryx.API.Data
                 new { PaisesId = 1, MoedasId = 1 }, // Brasil -> BRL
                 new { PaisesId = 2, MoedasId = 2 } // EUA -> USD
             ));
+
+            modelBuilder.Entity<UsuarioRole>(entity =>
+            {
+                entity.ToTable("UsuarioRole");
+                entity.HasKey(ur => new { ur.UsuarioId, ur.Role }); 
+
+                entity.Property(ur => ur.Role)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.HasOne(ur => ur.Usuario)
+                      .WithMany(u => u.Roles)
+                      .HasForeignKey(ur => ur.UsuarioId);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshToken");
+                entity.HasKey(rt => rt.Id);
+
+                entity.Property(rt => rt.Token)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(rt => rt.ExpiraEm)
+                      .IsRequired();
+
+                entity.HasOne(rt => rt.Usuario)
+                      .WithMany(u => u.RefreshTokens)
+                      .HasForeignKey(rt => rt.UsuarioId);
+            });
 
         }
 

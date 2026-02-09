@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Noryx.API.Application.Dtos;
 using Noryx.API.Data;
-using Noryx.API.Models;
+using Noryx.API.Domain.Entities;
 
 namespace Noryx.API.Controllers
 {

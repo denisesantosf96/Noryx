@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Noryx.API.Models
+namespace Noryx.API.Domain.Entities
 {
     public class Moeda : BaseEntity
     {

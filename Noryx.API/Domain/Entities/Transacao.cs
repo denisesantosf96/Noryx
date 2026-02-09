@@ -1,4 +1,4 @@
-﻿namespace Noryx.API.Models
+﻿namespace Noryx.API.Domain.Entities
 {
     public class Transacao : BaseEntity
     {
@@ -6,11 +6,11 @@
 
         public DateTime Data { get; set; }
 
-        // Conta
+       
         public int ContaId { get; set; }
         public Conta Conta { get; set; } = null!;
 
-        // Categoria
+        
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; } = null!;
     }
