@@ -143,7 +143,7 @@ namespace Noryx.API.Data
 
                 entity.Property(m => m.Codigo)
                     .IsRequired()
-                    .HasMaxLength(3);
+                    .HasMaxLength(10);
 
                 entity.HasIndex(m => m.Codigo)
                     .IsUnique();
@@ -179,7 +179,7 @@ namespace Noryx.API.Data
 
                 entity.Property(h => h.MoedaOrigem)
                     .IsRequired()
-                    .HasMaxLength(3); // código ISO da moeda, ex: USD
+                    .HasMaxLength(3); 
 
                 entity.Property(h => h.MoedaDestino)
                     .IsRequired()
@@ -194,17 +194,12 @@ namespace Noryx.API.Data
                 new Pais { Id = 2, Nome = "Estados Unidos" }
             );
 
-            modelBuilder.Entity<Moeda>().HasData(
-                new Moeda { Id = 1, Nome = "Real", Codigo = "BRL" },
-                new Moeda { Id = 2, Nome = "Dólar Americano", Codigo = "USD" }
-            );
-
             modelBuilder.Entity<Pais>()
             .HasMany(p => p.Moedas)
             .WithMany(m => m.Paises)
             .UsingEntity(j => j.HasData(
-                new { PaisesId = 1, MoedasId = 1 }, // Brasil -> BRL
-                new { PaisesId = 2, MoedasId = 2 } // EUA -> USD
+                new { PaisesId = 1, MoedasId = 1 }, 
+                new { PaisesId = 2, MoedasId = 2 } 
             ));
 
             modelBuilder.Entity<UsuarioRole>(entity =>

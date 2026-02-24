@@ -32,22 +32,54 @@ namespace WorkerIntegracao
                     var noryxApi = scope.ServiceProvider
                         .GetRequiredService<IApiNoryx>();
 
+                    _logger.LogInformation("Iniciando sincronização de moedas...");
+
+                    var moedasExistentes = await noryxApi.BuscarMoedasAsync();
+                    var codigosExistentes = moedasExistentes
+                        .Select(m => m.Codigo)
+                        .ToHashSet();
+
                     var moedasExternas = await awesomeApi.BuscarMoedasAsync();
 
-                    var moedasDto = moedasExternas.Select(m => new MoedaExternaDto
-                    {
-                        Codigo = m.Key,
-                        Nome = m.Value
-                    });
-
-                    await noryxApi.ImportarMoedasAsync(moedasDto);
-
                     _logger.LogInformation(
-                        "Sincronização de moedas concluída. Total recebido: {total}",
+                        "Total de pares recebidos da AwesomeAPI: {total}",
                         moedasExternas.Count);
 
-                    var moedas = await noryxApi.BuscarMoedasAsync();  //busca moedas já cadastradas no banco via api noryx
+                    var codigosExternosUnicos = moedasExternas
+                        .Select(m => m.Key.Split('-')[0])
+                        .Distinct()
+                        .ToList();
 
+                    _logger.LogInformation(
+                        "Total de moedas únicas encontradas: {total}",
+                        codigosExternosUnicos.Count);
+
+                    var moedasParaImportar = codigosExternosUnicos
+                        .Where(codigo => !codigosExistentes.Contains(codigo))
+                        .Select(codigo => new MoedaExternaDto
+                        {
+                            Codigo = codigo,
+                            Nome = codigo 
+                        })
+                        .ToList();
+
+                    if (moedasParaImportar.Any())
+                    {
+                        await noryxApi.ImportarMoedasAsync(moedasParaImportar);
+
+                        _logger.LogInformation(
+                            "Novas moedas realmente inseridas: {total}",
+                            moedasParaImportar.Count);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Nenhuma moeda nova para importar.");
+                    }
+
+                    _logger.LogInformation("Sincronização de moedas concluída.");
+
+
+                    var moedas = await noryxApi.BuscarMoedasAsync();
                     const string moedaDestino = "BRL";
 
                     foreach (var moeda in moedas)

@@ -15,14 +15,23 @@ namespace Noryx.API.Application.Services
         }
         public async Task ProcessarCotacaoAsync(CotacaoDto dto)
         {
-            var moeda = await _context.Moedas
+            var moedaDestino = await _context.Moedas
                 .FirstOrDefaultAsync(m => m.Codigo == dto.MoedaDestino);
 
-            if (moeda == null)
-                throw new Exception($"Moeda {dto.MoedaDestino} não cadastrada.");
+            if (moedaDestino == null)
+            {
+                moedaDestino = new Moeda
+                {
+                    Codigo = dto.MoedaDestino,
+                    Nome = dto.MoedaDestino
+                };
+
+                _context.Moedas.Add(moedaDestino);
+                await _context.SaveChangesAsync();
+            }
 
             var cotacaoAtual = await _context.Cotacoes
-                .Where(c => c.MoedaId == moeda.Id)
+                .Where(c => c.MoedaId == moedaDestino.Id)
                 .OrderByDescending(c => c.DataReferencia)
                 .FirstOrDefaultAsync();
 
@@ -31,7 +40,7 @@ namespace Noryx.API.Application.Services
 
             var novaCotacao = new Cotacao
             {
-                MoedaId = moeda.Id,
+                MoedaId = moedaDestino.Id,
                 ValorVenda = dto.Valor,
                 DataReferencia = DateTime.UtcNow,
                 DataAtualizacao = DateTime.UtcNow
