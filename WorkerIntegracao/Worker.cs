@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Noryx.API.Application.Dtos;
-using Noryx.API.Application.Services;
 using WorkerIntegracao.Services;
 
 namespace WorkerIntegracao
@@ -9,6 +8,10 @@ namespace WorkerIntegracao
     {
         private readonly ILogger<Worker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
+
+        bool _usarAwesomeApi = true;
+        bool _buscaMoedas = false;
+        bool _buscaCotacoes = true;
 
         public Worker(ILogger<Worker> logger, IServiceScopeFactory scopeFactory)
         {
@@ -22,109 +25,101 @@ namespace WorkerIntegracao
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                using var scope = _scopeFactory.CreateScope();
+
+                var awesomeApi = scope.ServiceProvider.GetRequiredService<IApiAwesome>();
+                var noryxApi = scope.ServiceProvider.GetRequiredService<IApiNoryx>();
+
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
-
-                    var awesomeApi = scope.ServiceProvider
-                        .GetRequiredService<IApiAwesome>();
-
-                    var noryxApi = scope.ServiceProvider
-                        .GetRequiredService<IApiNoryx>();
-
-                    _logger.LogInformation("Iniciando sincronização de moedas...");
-
-                    var moedasExistentes = await noryxApi.BuscarMoedasAsync();
-                    var codigosExistentes = moedasExistentes
-                        .Select(m => m.Codigo)
-                        .ToHashSet();
-
-                    var moedasExternas = await awesomeApi.BuscarMoedasAsync();
-
-                    _logger.LogInformation(
-                        "Total de pares recebidos da AwesomeAPI: {total}",
-                        moedasExternas.Count);
-
-                    var codigosExternosUnicos = moedasExternas
-                        .Select(m => m.Key.Split('-')[0])
-                        .Distinct()
-                        .ToList();
-
-                    _logger.LogInformation(
-                        "Total de moedas únicas encontradas: {total}",
-                        codigosExternosUnicos.Count);
-
-                    var moedasParaImportar = codigosExternosUnicos
-                        .Where(codigo => !codigosExistentes.Contains(codigo))
-                        .Select(codigo => new MoedaExternaDto
-                        {
-                            Codigo = codigo,
-                            Nome = codigo 
-                        })
-                        .ToList();
-
-                    if (moedasParaImportar.Any())
+                    if (_usarAwesomeApi)
                     {
-                        await noryxApi.ImportarMoedasAsync(moedasParaImportar);
+                        if (_buscaMoedas)
+                            await IntegracaoMoedasAsync(noryxApi, awesomeApi);
 
-                        _logger.LogInformation(
-                            "Novas moedas realmente inseridas: {total}",
-                            moedasParaImportar.Count);
-                    }
-                    else
-                    {
-                        _logger.LogInformation("Nenhuma moeda nova para importar.");
-                    }
-
-                    _logger.LogInformation("Sincronização de moedas concluída.");
-
-
-                    var moedas = await noryxApi.BuscarMoedasAsync();
-                    const string moedaDestino = "BRL";
-
-                    foreach (var moeda in moedas)
-                    {
-                        if (moeda.Codigo == moedaDestino)
-                            continue;
-
-                        var cotacaoApi = await awesomeApi
-                            .BuscarCotacaoAsync(moeda.Codigo, moedaDestino);
-
-                        if (cotacaoApi == null)
-                        {
-                            _logger.LogWarning(
-                                "Cotação não encontrada para {origem}/{destino}",
-                                moeda.Codigo, moedaDestino);
-                            continue;
-                        }
-
-                        var dto = new CotacaoDto
-                        {
-                            MoedaOrigem = moeda.Codigo,
-                            MoedaDestino = moedaDestino,
-                            Valor = decimal.Parse(
-                                cotacaoApi.bid,
-                                CultureInfo.InvariantCulture)
-                        };
-
-                        await noryxApi.InserirCotacaoAsync(dto);
-
-                        _logger.LogInformation(
-                            "Cotação enviada: {origem}/{destino} → {valor}",
-                            dto.MoedaOrigem,
-                            dto.MoedaDestino,
-                            dto.Valor);
+                        if (_buscaCotacoes)
+                            await IntegracaoCotacoesAsync(noryxApi, awesomeApi);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro no Worker Noryx.");
+                    _logger.LogError(ex, "Erro geral no Worker Noryx.");
                 }
 
-                await Task.Delay(
-                    TimeSpan.FromMinutes(5),
-                    stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
+        }
+
+        private async Task IntegracaoMoedasAsync(IApiNoryx noryxApi, IApiAwesome awesomeApi)
+        {
+            var moedasExistentes = await noryxApi.BuscarMoedasAsync();
+            var codigosExistentes = moedasExistentes
+                .Select(m => m.Codigo)
+                .ToHashSet();
+
+            var moedasExternas = await awesomeApi.BuscarMoedasAsync();
+
+            var codigosExternos = moedasExternas
+                .Select(m => m.Key.Split('-')[0])
+                .Distinct()
+                .ToList();
+
+            var novasMoedas = codigosExternos
+                .Where(codigo => !codigosExistentes.Contains(codigo))
+                .Select(codigo => new MoedaExternaDto
+                {
+                    Codigo = codigo,
+                    Nome = codigo
+                })
+                .ToList();
+
+            if (novasMoedas.Any())
+            {
+                await noryxApi.ImportarMoedasAsync(novasMoedas);
+                _logger.LogInformation("Moedas inseridas: {total}", novasMoedas.Count);
+            }
+        }
+
+        private async Task IntegracaoCotacoesAsync(IApiNoryx noryxApi, IApiAwesome awesomeApi)
+        {
+            var moedas = await noryxApi.BuscarMoedasAsync();
+            const string moedaDestino = "BRL";
+
+            foreach (var moeda in moedas)
+            {
+                if (moeda.Codigo == moedaDestino)
+                    continue;
+
+                try
+                {
+                    var cotacaoApi = await awesomeApi
+                        .BuscarCotacaoAsync(moeda.Codigo, moedaDestino);
+
+                    if (cotacaoApi == null)
+                        continue;
+
+                    var valor = decimal.Parse(
+                        cotacaoApi.bid,
+                        CultureInfo.InvariantCulture);
+
+                    var dto = new CotacaoDto
+                    {
+                        MoedaOrigem = moeda.Codigo,
+                        MoedaDestino = moedaDestino,
+                        Valor = valor
+                    };
+
+                    await noryxApi.InserirCotacaoAsync(dto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,
+                        "Erro ao processar moeda {moeda}",
+                        moeda.Codigo);
+                }
+            }
+
+            _logger.LogInformation("Integração de cotações concluída.");
         }
     }
 }

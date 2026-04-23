@@ -65,26 +65,22 @@ namespace Noryx.API.Application.Services
             string moedaOrigem,
             string moedaDestino)
         {
-            var moeda = await _context.Moedas
-                .FirstOrDefaultAsync(m => m.Codigo == moedaDestino);
-
-            if (moeda == null)
-                return null;
-
-            var cotacao = await _context.Cotacoes
-                .Where(c => c.MoedaId == moeda.Id)
-                .OrderByDescending(c => c.DataReferencia)
+            var historico = await _context.HistoricosCotacoes
+                .Where(h =>
+                    h.MoedaOrigem == moedaOrigem && 
+                    h.MoedaDestino == moedaDestino)
+                .OrderByDescending(h => h.DataHora)
                 .FirstOrDefaultAsync();
 
-            if (cotacao == null)
+            if (historico == null)
                 return null;
 
             return new CotacaoResponseDto
             {
                 MoedaOrigem = moedaOrigem,
                 MoedaDestino = moedaDestino,
-                Valor = cotacao.ValorVenda,
-                AtualizadoEm = cotacao.DataReferencia
+                Valor = historico.Valor,
+                AtualizadoEm = historico.DataHora
             };
         }
 

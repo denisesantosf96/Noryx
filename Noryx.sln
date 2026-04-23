@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noryx.API", "Noryx.API\Nory
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerIntegracao", "WorkerIntegracao\WorkerIntegracao.csproj", "{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noryx.Front", "Noryx.Front\Noryx.Front.csproj", "{47FDDFD5-BC2C-451D-BE89-D82A67A22C80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C4CBAD4-2628-47D6-92EC-8C6FFEDA0F16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47FDDFD5-BC2C-451D-BE89-D82A67A22C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47FDDFD5-BC2C-451D-BE89-D82A67A22C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47FDDFD5-BC2C-451D-BE89-D82A67A22C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47FDDFD5-BC2C-451D-BE89-D82A67A22C80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

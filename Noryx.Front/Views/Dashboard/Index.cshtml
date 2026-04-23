@@ -1,0 +1,13 @@
+﻿@model Noryx.Front.ViewModels.CotacaoViewModel
+
+<h2>Dashboard Financeiro</h2>
+
+@if (Model != null)
+{
+    <p><strong>Moeda:</strong> @Model.MoedaOrigem → @Model.MoedaDestino</p>
+    <p><strong>Valor:</strong> @Model.Valor</p>
+}
+else
+{
+    <p>Não foi possível obter a cotação.</p>
+}

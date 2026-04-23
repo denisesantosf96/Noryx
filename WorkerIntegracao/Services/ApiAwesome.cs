@@ -25,8 +25,7 @@ namespace WorkerIntegracao.Services
             if (!response.IsSuccessful || response.Data == null)
                 return null;
 
-            var chave = $"{moedaOrigem}{moedaDestino}";
-            return response.Data[chave];
+            return response.Data.Values.FirstOrDefault();
         }
 
         public async Task<Dictionary<string, string>> BuscarMoedasAsync()
